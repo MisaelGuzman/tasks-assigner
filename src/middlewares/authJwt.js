@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { MYSECRETKEY } = require("../config.js");
+const  config  = require("../config.js");
 const pool = require("../dbConnection.js");
 
 //verify token
@@ -8,13 +8,14 @@ const verifyToken = async (req, res, next) => {
   try {
     if (!token) return res.status(402).json("No token provided!");
 
-    const decoded = jwt.verify(token, MYSECRETKEY);
+    const decoded = jwt.verify(token, config.MYSECRETKEY);
     req.user_id = decoded.id;
+    console.log(decoded);
 
     const user = await pool.query(
       `
       SELECT * FROM users
-      WHERE user_id= $1;`,
+      WHERE id= $1;`,
       [req.user_id]
     );
 
@@ -40,8 +41,7 @@ const isAdmin = async (req, res, next) => {
       `,
       [req.user_id]
     );
-
-    if (isAdmin.rows[0].isAdmin === true) {
+    if (isAdmin.rows[0].isadmin === true) {
       next();
       return;
     }
